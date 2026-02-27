@@ -7,8 +7,6 @@ services:
       POSTGRES_DB: ecommerce_microservices
       POSTGRES_USER: hamdanx
       POSTGRES_PASSWORD: hamdanx
-#      TZ: Asia/Kolkata
-#      PGTZ: Asia/Kolkata
       PGDATA: /data/postgres
     ports:
       - "5432:5432"

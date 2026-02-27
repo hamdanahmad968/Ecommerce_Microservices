@@ -1,9 +1,9 @@
 spring:
   application:
-    name: product-service
+    name: order-service
 
   datasource:
-    url: jdbc:postgresql://postgres:5432/product
+    url: jdbc:postgresql://localhost:5432/order
     username: hamdanx
     password: hamdanx
     driver-class-name: org.postgresql.Driver
@@ -11,6 +11,7 @@ spring:
   jpa:
     show-sql: true
     hibernate:
+
       ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
@@ -26,6 +27,6 @@ spring:
 #    show-sql: true
 #    hibernate:
 #      ddl-auto: update
-server:
-  port: 8080
 
+server:
+  port: 8083
