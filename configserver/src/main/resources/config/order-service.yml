@@ -5,24 +5,24 @@ spring:
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-#  h2:
-#    console:
-#      enabled: true
-#      settings:
-#        web-allow-others: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
 
-#  datasource:
-#    url: jdbc:h2:mem:test
-#  jpa:
-#    show-sql: true
-#    hibernate:
-#      ddl-auto: update
 
 server:
   port: 8083

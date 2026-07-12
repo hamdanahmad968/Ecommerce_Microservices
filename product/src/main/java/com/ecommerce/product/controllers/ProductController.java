@@ -29,12 +29,17 @@ public class ProductController {
         return ResponseEntity.ok(productService.fetchAllProduct());
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ProductResponse> updateProduct(@PathVariable Long id, @RequestBody ProductRequest productRequest) {
-        return productService.updateProduct(id, productRequest)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponse> getProductsById(@PathVariable String id) {
+        return ResponseEntity.ok(productService.getProductsById(id));
     }
+        @PutMapping("/{id}")
+    public ResponseEntity<ProductResponse> updateProduct(@PathVariable Long id,  @RequestBody ProductRequest productRequest) {
+        ProductResponse updatedProduct =
+                productService.updateProduct(id, productRequest);
+        return ResponseEntity.ok(updatedProduct);
+    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {

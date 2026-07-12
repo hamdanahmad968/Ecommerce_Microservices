@@ -1,6 +1,10 @@
 package com.ecommerce.order.service;
 
+import com.ecommerce.order.clients.ProductServiceClient;
+import com.ecommerce.order.clients.UserServiceClient;
 import com.ecommerce.order.dto.CartItemRequest;
+import com.ecommerce.order.dto.ProductResponse;
+import com.ecommerce.order.dto.UserResponse;
 import com.ecommerce.order.model.CartItem;
 //import com.ecommerce.order.model.Product;
 //import com.ecommerce.order.model.User;
@@ -8,6 +12,7 @@ import com.ecommerce.order.repository.CartItemRepository;
 //import com.ecommerce.order.repository.ProductRepository;
 //import com.ecommerce.order.repository.UserRepository;
 //import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +27,8 @@ import java.util.List;
 public class CartService {
 //    private final ProductRepository productRepository;
     private final CartItemRepository cartItemRepository;
+    private final ProductServiceClient productServiceClient;
+    private final UserServiceClient userServiceClient;
 //    private final UserRepository userRepository;
 
     public void addToCart(Long userId, CartItemRequest request) {
@@ -29,9 +36,20 @@ public class CartService {
 
 //        Product product = productRepository.findById(request.getProductId())  // fetch product by id or throw exception if product does not exist
 //                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        ProductResponse productResponse = productServiceClient.getProductDetails(request.getProductId());
+        if(productResponse == null){
+            throw new EntityNotFoundException("Product not found");
+        }
 //
 //        User user = userRepository.findById(userId) // fetch user by id or throw exception if user does not exist
 //                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        UserResponse userResponse = userServiceClient.getUserDetails(String.valueOf(userId));
+        if(userResponse == null) {
+            throw new EntityNotFoundException("user not found");
+        }
+
+
 
         CartItem existingCartItem = cartItemRepository.findByUserIdAndProductId(String.valueOf(userId), request.getProductId()); //find existing cart item for the user and product
 
@@ -41,23 +59,27 @@ public class CartService {
                 : request.getQuantity();
 
 
-//        if (finalQuantity > product.getStockQuantity()) { // validate that requested quantity does not exceed available stock
-//            throw new IllegalStateException("Product out of stock");
-//        }
-
-//        BigDecimal totalPrice =  product.getPrice().multiply(BigDecimal.valueOf(finalQuantity)); //  calculate total price based on final quantity
-         BigDecimal totalPrice = BigDecimal.valueOf(10000);
-
-        if (existingCartItem == null) {
-            existingCartItem = new CartItem();
-            existingCartItem.setUserId(String.valueOf(userId));
-            existingCartItem.setProductId(request.getProductId());
-        existingCartItem.setQuantity(finalQuantity);
-        existingCartItem.setPrice(totalPrice);
+        if (finalQuantity > productResponse.getStockQuantity()) { // validate that requested quantity does not exceed available stock
+            throw new IllegalStateException("Product out of stock");
         }
 
+        BigDecimal totalPrice =  productResponse.getPrice().multiply(BigDecimal.valueOf(finalQuantity)); //  calculate total price based on final quantity
+//         BigDecimal totalPrice = BigDecimal.valueOf(10000);
+
+        if (existingCartItem == null) {
+
+            existingCartItem = new CartItem();
+
+            existingCartItem.setUserId(String.valueOf(userId));
+            existingCartItem.setProductId(request.getProductId());
+        }
+
+        existingCartItem.setQuantity(finalQuantity); //if not null
+        existingCartItem.setPrice(totalPrice);
 
         cartItemRepository.save(existingCartItem);
+
+
     }
 
     public boolean removeFromCart(String userId, String productId) {

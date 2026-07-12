@@ -3,8 +3,12 @@ import com.ecommerce.product.dto.ProductRequest;
 import com.ecommerce.product.dto.ProductResponse;
 import com.ecommerce.product.model.Product;
 import com.ecommerce.product.repository.ProductRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,14 +35,18 @@ public class ProductService {
     }
 
 
-    public Optional <ProductResponse> updateProduct(Long id, ProductRequest productRequest) {
-        return productRepository.findById(id)   // .orElseThrow(() -> new RuntimeException("Product not found")); if no optional , no map required
-                .map(exisitingProduct -> {
-                    updateProductFromRequest(exisitingProduct, productRequest);
-                    Product savedProduct = productRepository.save(exisitingProduct);
+    public ProductResponse updateProduct(Long id, ProductRequest productRequest) {
+        Product existingProduct =  productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        updateProductFromRequest(existingProduct, productRequest);
+        Product savedProduct = productRepository.save(existingProduct);
                     return mapToProductResponse(savedProduct);
-                });
-    }
+//                .map(exisitingProduct -> {
+//                    updateProductFromRequest(exisitingProduct, productRequest);
+//                    Product savedProduct = productRepository.save(exisitingProduct);
+//                    return mapToProductResponse(savedProduct);
+//                });
+    };
     public Boolean deleteProduct(Long id) {
         return productRepository.findById(id)
                 .map(product -> {
@@ -54,6 +62,16 @@ public class ProductService {
                 .collect(Collectors.toList());
 
 
+    }
+    public ProductResponse getProductsById(String id) {
+
+        Product product = productRepository.findByIdAndActiveTrue(Long.valueOf(id))
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Product not found"
+                        ));
+        return mapToProductResponse(product);
     }
 
 
@@ -82,6 +100,7 @@ public class ProductService {
         return response;
 
     }
+
 
 
 }
