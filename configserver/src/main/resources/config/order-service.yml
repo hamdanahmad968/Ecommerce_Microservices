@@ -17,6 +17,13 @@ spring:
       ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
+logging:
+  file:
+    name: logs/${spring.application.name}.log
+  logback:
+    rollingpolicy:
+      max-file-sie: 5MB
+
 management:
   endpoints:
     web:
